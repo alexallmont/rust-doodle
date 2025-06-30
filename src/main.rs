@@ -1,0 +1,86 @@
+use nalgebra::DMatrix; // dynamically sized column-major matrix
+use faer::Mat; // FIXME confirm layout
+use numpy::ndarray::ArrayView2;
+use numpy::ndarray::ShapeBuilder; // Required for strides() on shape
+use numpy::{PyArray2, ToPyArray};
+use pyo3::prelude::*;
+
+fn nalgebra_test<'py>(py: Python<'py>) -> Bound<'py, PyArray2<f64>>{
+    let mut mat: DMatrix<f64> = DMatrix::zeros(7, 13);
+    mat[(2, 5)] = 5.0; // Example value to test orientation
+
+    println!("nrows: {}", mat.nrows());
+    println!("ncols: {}", mat.ncols());
+
+    let shape = mat.shape();
+    let strides = mat.strides();
+    println!("shape: {:?}", shape);
+    println!("strides: {:?}", strides);
+
+    let ptr = mat.as_ptr();
+    let view = unsafe {
+        ArrayView2::from_shape_ptr(
+            shape.strides(strides),
+            ptr
+        )
+    };
+
+    view.to_pyarray(py).into()
+}
+
+fn faer_test<'py>(py: Python<'py>) -> Bound<'py, PyArray2<f64>> {
+    let mut mat: Mat<f64> = Mat::zeros(7, 13);
+    *mat.get_mut(2, 5) = 5.0; // Example value to test orientation
+
+    println!("nrows: {}", mat.nrows());
+    println!("ncols: {}", mat.ncols());
+
+    let shape = mat.shape();
+    let strides = (mat.row_stride() as usize, mat.col_stride() as usize);
+    println!("shape: {:?}", shape);
+    println!("strides: {:?}", strides);
+
+    let ptr = mat.as_ptr();
+    let view = unsafe {
+        ArrayView2::from_shape_ptr(
+            shape.strides(strides),
+            ptr
+        )
+    };
+
+    view.to_pyarray(py).into()
+}
+
+// TODO
+// 1. lifetime checking, best practice for safety:
+//  - Only return the array inside Python::with_gil, and do not let it outlive its source Rust object
+//  - If returning to Python permanently, wrap the backing buffer in a PyCapsule or move to an owned Array2
+//  - To verify: try accessing the Python array after dropping the Rust backing data—if it segfaults or panics, you’ve overstepped the lifetime.
+// 2. Ensure no internal data copies (zero-copy confidence)
+//  - Valgrind for catching memory leaks and tracking heap allocations, detecting excess copies during execution
+//    `valgrind --tool=massif ./target/debug/your_binary`
+//    `ms_print massif.out.<pid>`
+//  - "miri" rchecks for undefined behavior, including invalid memory access and double frees
+//    `cargo +nightly miri run`
+// 3. General outstanding work:
+//  - Lifetime of data (ensure objects that created arrays are kept in scope/PyCell/problem)
+//  - Use traits to avoid duplication in nalgebra/faer examples above.
+//  - FIXME: confirm layouts, check data valid, strides, orientation, etc.
+//  - FIXME: try running in unit test rather than main
+//    - Debug test in launch.json
+//    - Run/debug test in editor UI
+fn main() -> PyResult<()> {
+    Python::with_gil(|py| {
+        let sys = py.import("sys").unwrap();
+        println!("sys.prefix = {:?}", sys.getattr("prefix").unwrap());
+        println!("sys.executable = {:?}", sys.getattr("executable").unwrap());
+
+        let faer_arr = faer_test(py);
+        println!("faer_arr:\n{}\n", faer_arr.repr().unwrap().to_str().unwrap());
+
+        let nalgebra_arr = nalgebra_test(py);
+        println!("nalgebra_arr:\n{}\n", nalgebra_arr.repr().unwrap().to_str().unwrap());
+
+        Ok(())
+    })
+}

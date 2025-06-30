@@ -1,0 +1,22 @@
+[package]
+name = "rust-doodle"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+faer = "0.22.6"
+nalgebra = { version = ">=0.30, <0.34", default-features = false, features = [
+    "std",
+] }
+numpy = "0.25.0"
+pyo3 = { version = "0.25", default-features = false, features = ["macros", "auto-initialize"] }
+
+# FIXME from numpy Cargo
+[package.metadata.docs.rs]
+all-features = true
+
+[lints.rust]
+elided-lifetimes-in-paths = "deny"
+
+[lints.clippy]
+needless-lifetimes = "allow"
