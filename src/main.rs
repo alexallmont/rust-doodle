@@ -65,15 +65,15 @@ fn faer_test<'py>(py: Python<'py>) -> Bound<'py, PyArray2<f64>> {
 // 3. General outstanding work:
 //  - Lifetime of data (ensure objects that created arrays are kept in scope/PyCell/problem)
 //  - Use traits to avoid duplication in nalgebra/faer examples above.
-//  - FIXME: confirm layouts, check data valid, strides, orientation, etc.
-//  - FIXME: try running in unit test rather than main
-//    - Debug test in launch.json
-//    - Run/debug test in editor UI
 fn main() -> PyResult<()> {
     Python::with_gil(|py| {
         let sys = py.import("sys").unwrap();
         println!("sys.prefix = {:?}", sys.getattr("prefix").unwrap());
         println!("sys.executable = {:?}", sys.getattr("executable").unwrap());
+
+        for (key, value) in std::env::vars() {
+            println!("{key}: {value}");
+        }
 
         let faer_arr = faer_test(py);
         println!("faer_arr:\n{}\n", faer_arr.repr().unwrap().to_str().unwrap());
@@ -83,4 +83,21 @@ fn main() -> PyResult<()> {
 
         Ok(())
     })
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Dummy test more for user to check that tests can be run and debug
+    /// using hover buttons in VSCode UI. This requires `.cargo/config.toml` and
+    /// `"lldb.launch.env"` have been set up; see README.md for details.
+    #[test]
+    fn test_env_numpy_correct_in_gui() {
+        Python::with_gil(|py| {
+            faer_test(py);
+            nalgebra_test(py);
+        });
+    }
 }

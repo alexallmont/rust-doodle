@@ -1,0 +1,2 @@
+[env]
+PYTHONPATH = ".venv/lib/python3.13/site-packages"

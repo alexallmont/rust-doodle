@@ -1,0 +1,6 @@
+{
+    "lldb.launch.env": {
+        "PYTHONPATH": "${workspaceFolder}/.venv/lib/python3.13/site-packages"
+    },
+    "rust-analyzer.testExplorer": true,
+}

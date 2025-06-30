@@ -11,9 +11,6 @@
             "program": "${workspaceFolder}/target/debug/rust-doodle",
             "args": [],
             "cwd": "${workspaceFolder}",
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}/.venv/lib/python3.13/site-packages"
-            },
             "preLaunchTask": "maturin develop"
         }
     ]

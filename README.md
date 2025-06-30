@@ -31,6 +31,38 @@ PYTHONPATH=.venv/lib/python3.13/site-packages cargo run
 ```
 
 Similarly, this extra environment information is required to launch for debug.
-See `.vscode/launch.json` for example. This launches directly rather than
-running with `cargo` as the latter seems to tweak the env; it's better to use
-LLDB directly.
+This can be in the environment settings in `.vscode/launch.json`, for example:
+
+```json
+    "env": {
+        "PYTHONPATH": "${workspaceFolder}/.venv/lib/python3.13/site-packages"
+    },
+```
+
+Alternatively, to ensure debug works consistently with VSCode UI too, I've found
+that setting `lldb.launch.env` more relaible. See below.
+
+The `launch.json` example runs the executable directly rather than using `cargo`
+because the latter seems to tweak the environment and was fiddly initially, so
+to keep it simple, I'm running direclty with LLDB after a running
+`maturin develop`.
+
+### Debugging using the in-editor Run and Debug code hover buttons
+
+To use the Run button, the `.cargo/config.toml` needs to know `PYTHONPATH`.
+Apparently this should be an absolute dir, but I have found it works with
+relative paths so have committed my personal config file running against local
+`.venv`, if you have any issues replace with absolute dir, i.e.:
+
+```toml
+[env]
+PYTHONPATH = "<absolute path to this dir>/.venv/lib/python3.13/site-packages"
+```
+
+To run with the Debug hover button add the following to your `settings.json`:
+
+```json
+    "lldb.launch.env": {
+        "PYTHONPATH": "${workspaceFolder}/.venv/lib/python3.13/site-packages"
+    }
+```
