@@ -12,11 +12,10 @@ General experiments in day-to-day work
 ### Setup and debugging
 
 Create a venv, add required libs and set up developer enviroment by running
-`./setup.sh`. This uses regular pip for tooling after I hit some linkage issues
-running `uv` and `pipx` for tooling, so I'm playing it safe but your mileage
-may vary.
+`./setup.sh`. This uses regular `pip` rather than `uv` or `pipx` for tooling
+after I hit some issues, so I'm playing it safe but your mileage may vary.
 
-The setup script runs the package setup below, and also patches
+The setup script sets up pip and maturin as below, and also creates
 `.cargo/config.toml` and `.vscode/settings.json` to make the integrated editor
 debugging experience nicer (see notes below).
 
@@ -69,7 +68,7 @@ to keep it simple, I'm running direclty with LLDB after a running
 VSCode has a hover button over code and tests that says 'Run | Debug'. These
 work fine for vanilla rust or vanilla python projects but I've found to work
 correctly with PyO3/maturin projects like this I had to do some extra steps
-detailed here (but if you ran './setup.sh` this is done automatically).
+detailed here (but if you ran `./setup.sh` this is done automatically).
 
 To use the Run button, the `.cargo/config.toml` needs to know `PYTHONPATH`.
 Apparently this should be an absolute dir, but I have found it works with
