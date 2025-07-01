@@ -29,8 +29,8 @@ maturin develop
 Note that crate is a **binary** test app and not a lib as is usual with
 `maturin develop` projects. This seemed to cause problems when using `cargo run`
 and I had to manually specify the `PYTHONPATH` before running. This now seems
-to work OK for me on certain machines but if you hit problems, you can specify
-on the command line with something like:
+to work OK for me after setting explicitly in `.cargo/config.toml` but if you
+hit problems, you can specify on the command line with something like:
 
 ```sh
 PYTHONPATH=.venv/lib/python3.13/site-packages cargo run

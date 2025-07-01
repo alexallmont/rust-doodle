@@ -4,7 +4,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 
 echo Patching site-packages in develeper config...
-SITE_PACKAGES=$(python -c "import site; print(site.getusersitepackages())")
+SITE_PACKAGES=$(python -c "import sysconfig; print(sysconfig.get_path('purelib'))")
 
 # VSCode Run in editor/general cargo config
 mkdir -p .cargo
